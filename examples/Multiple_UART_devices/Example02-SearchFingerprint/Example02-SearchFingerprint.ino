@@ -20,9 +20,14 @@
 
 #include "SparkFun_AS108M_Arduino_Library.h"
 
-#define RX_PIN    25        // AD-013 green wire
-#define TX_PIN    26        // AD-013 blue wire
+// Defines where the readers will be connected.
+// TX_PIN : Arduino --> Reader
+// RX_PIN : Arduino <-- Reader
 
+#define RX_PIN    25        // AD-013 blue wire
+#define TX_PIN    26        // AD-013 green wire
+
+// Reader instance
 AS108M as108m;
 
 // Function prototype for error callback function
@@ -30,10 +35,12 @@ void AS108_Callback();
 
 void setup()
 {
+  // Initialize monitor serial port
   Serial.begin(115200);
   Serial.println();
   Serial.println(F("Starting up..."));
 
+  // Initialize reader serial port
   Serial1.begin(57600, SERIAL_8N2, RX_PIN, TX_PIN);
 
   // When creating the main AS108M object we pass the callback function as a parameter.
@@ -63,8 +70,7 @@ void setup()
 void loop()
 {
   // Search for any matching fingerprint
-    // Wait 1000 msec (1 second) between attempts
-  AS108M_QUERY_DATA sd = as108m.searchFingerprint(1000);
+  AS108M_QUERY_DATA sd = as108m.searchFingerprint();
 
   // Turn the LED on and print the ID and match score...
   if (sd.found == true)

@@ -83,11 +83,11 @@ public:
 	bool enrollFingerprint(byte ID, byte numSamples = 5);
 	
 	// Returns true if fingerprint matches the ID passed as paramenter, false otherwise.
-	AS108M_QUERY_DATA getFingerprintMatch(byte ID, unsigned int timeBetweenRetries = 5000);
+	AS108M_QUERY_DATA getFingerprintMatch(byte ID);
 	
 	// Search for the fingerprint in the device's enrolled fingerprint memory. 
 	// This function will wait three attempts spaced timeBetweenRetries msec if no finger is in sensor before returning.
-	AS108M_QUERY_DATA searchFingerprint(unsigned int timeBetweenRetries = 5000);
+	AS108M_QUERY_DATA searchFingerprint();
 	
 	//Deletes a specific fingerprint entry from the database.
 	bool deleteFingerprintEntry(byte ID);

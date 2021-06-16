@@ -42,9 +42,6 @@ bool AS108M::isConnected()
 	// Send CANCEL command and wait for reply
 	sendSingleByteCommand(AS108M_CANCEL);
 	
-	// Give AS108M some time
-	delay(10);
-	
 	// Get data back
 	readPacket();
 	
@@ -323,7 +320,7 @@ AS108M_RESPONSE_CODES AS108M::getResponseCode(byte response)
 	return AS108M_RESPONSE_CODES::AS108M_INVALID_RESPONSE;
 }
 
-AS108M_QUERY_DATA AS108M::searchFingerprint(unsigned int timeBetweenRetries)
+AS108M_QUERY_DATA AS108M::searchFingerprint()
 {	
 	// Set response as no response
 	response = AS108M_RESPONSE_CODES::AS108M_NO_RESPONSE;
@@ -338,12 +335,6 @@ AS108M_QUERY_DATA AS108M::searchFingerprint(unsigned int timeBetweenRetries)
 	// 1) Read Fingerprint using PS_GetImage
 	// 2) Generate the image into a specific BufferID (1 in this case)
 	// 3) Search the chip's memory for a fingerprint match
-	
-	// Step 1 will query the device for a fingerprint. It will attempt three readings spaced timeBetweenRetries msec from each other
-	// if the returned confirm code is AS108M_RESPONSE_CODES::AS108M_NO_FINGER. 
-	
-	// Attempt counter
-	byte counter = 0;
 	
 	// exit flag
 	bool exit = false;
@@ -382,22 +373,9 @@ AS108M_QUERY_DATA AS108M::searchFingerprint(unsigned int timeBetweenRetries)
 		case 0x02:
 			{
 				response = AS108M_RESPONSE_CODES::AS108M_NO_FINGER;
-				counter++;
-				if (counter > 3)
-				{
-					// No finger detected in all attempts - set response and return searchData as is
-					return searchData;
-				}
-				else
-				{
-					// Callback the function passed if it's not NULL
-					if(pCallback != NULL)
-						pCallback();
-					
-					// Wait timeBetweenRetries msec and try again
-					if(timeBetweenRetries > 0)
-						delay(timeBetweenRetries);
-				}
+				if (pCallback != NULL)
+					pCallback();
+				return searchData;
 			}
 			break;
 			
@@ -585,7 +563,7 @@ AS108M_QUERY_DATA AS108M::searchFingerprint(unsigned int timeBetweenRetries)
 	return searchData;
 }
 
-AS108M_QUERY_DATA AS108M::getFingerprintMatch(byte ID, unsigned int timeBetweenRetries)
+AS108M_QUERY_DATA AS108M::getFingerprintMatch(byte ID)
 {
 	// Set response as no response
 	response = AS108M_RESPONSE_CODES::AS108M_NO_RESPONSE;
@@ -601,13 +579,7 @@ AS108M_QUERY_DATA AS108M::getFingerprintMatch(byte ID, unsigned int timeBetweenR
 	// 2) Generate the image into a specific BufferID 1
 	// 3) Load fingerprint ID (PageNumber) from the chip memory in BufferID 2 
 	// 4) Call PS_Match
-	
-	// Step 1 will query the device for a fingerprint. It will attempt three readings spaced timeBetweenRetries msec from each other
-	// if the returned confirm code is AS108M_RESPONSE_CODES::AS108M_NO_FINGER. 
-	
-	// Attempt counter
-	byte counter = 0;
-	
+
 	// exit flag
 	bool exit = false;
 
@@ -645,22 +617,12 @@ AS108M_QUERY_DATA AS108M::getFingerprintMatch(byte ID, unsigned int timeBetweenR
 		case 0x02:
 			{
 				response = AS108M_RESPONSE_CODES::AS108M_NO_FINGER;
-				counter++;
-				if (counter > 3)
-				{
-					// No finger detected in all attempts - set response and return searchData as is
-					return searchData;
-				}
-				else
-				{
-					// Callback the function passed if it's not NULL
-					if(pCallback != NULL)
-						pCallback();
+
+				// Callback the function passed if it's not NULL
+				if (pCallback != NULL)
+					pCallback();
 					
-					// Wait timeBetweenRetries msec and try again
-					if(timeBetweenRetries > 0)
-						delay(timeBetweenRetries);
-				}
+				return searchData;
 			}
 			break;
 			
@@ -1354,3 +1316,4 @@ bool AS108M::deleteFingerprintEntry(byte ID)
 	
 	return true;
 }
+

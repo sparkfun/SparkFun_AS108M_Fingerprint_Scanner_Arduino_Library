@@ -1,5 +1,5 @@
 /*
-  Clears out all entries from the AS-108M/AD-013 memory
+  Delete a specific matching fingerprint from the AS-108M/AD-013 memory
   By: Ricardo Ramos
   SparkFun Electronics
   Date: June 14th, 2021
@@ -7,28 +7,32 @@
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/17151
 
-  This example will delete all fingerprint entries from AS-108M/AD-013 flash memory.
+  This example demonstrates how to delete a specific entry from the AS-108M/AD-013 flash memory.
   
-  Note: This example will only work in devices with more than one hardware serial port like ESP32, STM32, Mega, etc.
+ Note: This example will work in devices with a single hardware serial port like Arduino Uno.
   
   Hardware Connections:
   - Connect the sensor to your board. Be aware that this sensor can be powered by 3.3V only !
   - Open a serial monitor at 115200bps
   
-  The example below illustrates how to use the AS-108M/AD-013 with an ESP32 ThingPlus board.
+  The example below illustrates how to use the AS-108M/AD-013 with an Arduino Uno board.
 */
 
+#include <SoftwareSerial.h>
 #include "SparkFun_AS108M_Arduino_Library.h"
 
 // Defines where the readers will be connected.
 // TX_PIN : Arduino --> Reader
 // RX_PIN : Arduino <-- Reader
 
-#define RX_PIN    25        // AD-013 blue wire
-#define TX_PIN    26        // AD-013 green wire
+#define TX_PIN    9       // AD-013 green wire
+#define RX_PIN    8       // AD-013 blue wire
 
 // Reader instance
 AS108M as108m;
+
+// Software serial instance with the corresponding pins
+SoftwareSerial as108_serial(RX_PIN, TX_PIN);
 
 // Function prototype for error callback function
 void AS108_Callback();
@@ -41,12 +45,12 @@ void setup()
   Serial.println(F("Starting up..."));
 
   // Initialize reader serial port
-  Serial1.begin(57600, SERIAL_8N2, RX_PIN, TX_PIN);
+  as108_serial.begin(57600);
 
   // When creating the main AS108M object we pass the callback function as a parameter.
   // The library will call this function if there are any errors during operation.
   // This parameter is optional.
-  as108m.begin(Serial1, AS108_Callback);
+  as108m.begin(as108_serial, AS108_Callback);
 
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -69,12 +73,17 @@ void setup()
 
 void loop()
 {
-  bool success = as108m.clearFingerprintDatabase();
+  // Memory address location for fingerprint erasure
+  byte ID = 1;
+
+  bool success = as108m.deleteFingerprintEntry(ID);
 
   // Turn the LED on and print the ID and match score...
   if (success == true)
   {
-      Serial.println(F("Fingerprint database cleared !"));
+      Serial.print(F("Fingerprint with ID "));
+      Serial.print(ID);
+      Serial.println(F(" deleted !"));
       digitalWrite(LED_BUILTIN, HIGH);
   }
   else

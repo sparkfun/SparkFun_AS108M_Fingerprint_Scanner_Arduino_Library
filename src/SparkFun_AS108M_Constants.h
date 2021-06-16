@@ -132,5 +132,4 @@ enum class AS108M_RESPONSE_CODES : byte
 	AS108M_UNKNOWN_ERROR								// 48, unknown error
 };
 	
-
 #endif

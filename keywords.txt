@@ -6,18 +6,18 @@
 # Datatypes (KEYWORD1)
 ############################################################
 
-AS108M												KEYWORD1
-PACKET_FIELD										KEYWORD1
-FLAG_TYPE											KEYWORD1
-AS108M_RESPONSE_CODES								KEYWORD1
-AS108M_PACKET_DATA									KEYWORD1
-AS108M_QUERY_DATA									KEYWORD1
+AS108M			                                        KEYWORD1
+PACKET_FIELD									                    	KEYWORD1
+FLAG_TYPE											                      KEYWORD1
+AS108M_RESPONSE_CODES								                KEYWORD1
+AS108M_PACKET_DATA									                KEYWORD1
+AS108M_QUERY_DATA									                  KEYWORD1
 
 ############################################################
 # Methods and Functions (KEYWORD2)
 ############################################################
 
-getResponseCode                                  	KEYWORD2
+getResponseCode                                  	  KEYWORD2
 readPacket                                          KEYWORD2
 sendSingleByteCommand                               KEYWORD2
 sendPacket                                          KEYWORD2
@@ -33,34 +33,34 @@ deleteFingerprintEntry                              KEYWORD2
 # Constants (LITERAL1)
 ############################################################
 
-AS108M_FLAG_COMMAND									LITERAL1		
-AS108M_FLAG_DATA									LITERAL1			
-AS108M_FLAG_ACK										LITERAL1			
-AS108M_FLAG_END										LITERAL1			
-AS108M_BUFFER_ID_1									LITERAL1			
-AS108M_BUFFER_ID_2									LITERAL1			
-AS108M_GET_IMAGE									LITERAL1			
-AS108M_GET_CHAR										LITERAL1			
-AS108M_MATCH										LITERAL1				
-AS108M_SEARCH										LITERAL1				
-AS108M_REG_MODEL									LITERAL1			
-AS108M_STORE_CHAR									LITERAL1			
-AS108M_LOAD_CHAR									LITERAL1			
-AS108M_UP_CHAR										LITERAL1				
-AS108M_DOWN_CHAR									LITERAL1			
-AS108M_UP_IMAGE										LITERAL1			
-AS108M_DOWN_IMAGE									LITERAL1			
-AS108M_DELETE_CHAR									LITERAL1			
-AS108M_EMPTY										LITERAL1				
-AS108M_WRITE_REG									LITERAL1			
-AS108M_READ_SYS_PARAMETER							LITERAL1	
-AS108M_SET_PASSWORD									LITERAL1		
-AS108M_VERIFY_PASSWORD								LITERAL1		
-AS108M_GET_RANDOM_CODE								LITERAL1		
-AS108M_SET_CHIP_ADDRESS								LITERAL1	
-AS108M_READ_INFO_PAGE								LITERAL1		
-AS108M_WRITE_NOTEPAD								LITERAL1		
-AS108M_READ_NOTEPAD									LITERAL1		
+AS108M_FLAG_COMMAND									                LITERAL1		
+AS108M_FLAG_DATA									                  LITERAL1			
+AS108M_FLAG_ACK										                  LITERAL1			
+AS108M_FLAG_END										                  LITERAL1			
+AS108M_BUFFER_ID_1									                LITERAL1			
+AS108M_BUFFER_ID_2									                LITERAL1			
+AS108M_GET_IMAGE									                  LITERAL1			
+AS108M_GET_CHAR									                  	LITERAL1			
+AS108M_MATCH						                    				LITERAL1				
+AS108M_SEARCH			                    							LITERAL1				
+AS108M_REG_MODEL	                  								LITERAL1			
+AS108M_STORE_CHAR		                  							LITERAL1			
+AS108M_LOAD_CHAR                  									LITERAL1			
+AS108M_UP_CHAR	                  									LITERAL1				
+AS108M_DOWN_CHAR							                  		LITERAL1			
+AS108M_UP_IMAGE								                  		LITERAL1			
+AS108M_DOWN_IMAGE							                  		LITERAL1			
+AS108M_DELETE_CHAR					                				LITERAL1			
+AS108M_EMPTY								                    		LITERAL1				
+AS108M_WRITE_REG							                   		LITERAL1			
+AS108M_READ_SYS_PARAMETER			              				LITERAL1	
+AS108M_SET_PASSWORD						              			  LITERAL1		
+AS108M_VERIFY_PASSWORD				              				LITERAL1		
+AS108M_GET_RANDOM_CODE				              				LITERAL1		
+AS108M_SET_CHIP_ADDRESS				              				LITERAL1	
+AS108M_READ_INFO_PAGE					              	   		LITERAL1		
+AS108M_WRITE_NOTEPAD					              	   		LITERAL1		
+AS108M_READ_NOTEPAD						              	   		LITERAL1		
 AS108M_VALID_TEMPLATE_NUM							LITERAL1	
 AS108M_READ_INDEX_TABLE								LITERAL1	
 AS108M_CANCEL										LITERAL1				

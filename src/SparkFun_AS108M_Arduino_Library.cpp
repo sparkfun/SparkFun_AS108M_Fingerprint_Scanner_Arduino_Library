@@ -21,12 +21,14 @@ https://www.sparkfun.com/products/17151
 
 #define SERIAL_BUFFER_SIZE 256
 
-void AS108M::begin(Stream& commPort, void(*callBack)(void), unsigned long address)
+bool AS108M::begin(Stream& commPort, void(*callBack)(void), unsigned long address)
 {
 	_comm = &commPort;
 	_address = static_cast<uint32_t>(address);
 	if(callBack != NULL)
 		pCallback = callBack;
+
+	return isConnected();
 }
 
 bool AS108M::isConnected()
@@ -35,7 +37,7 @@ bool AS108M::isConnected()
 	response = AS108M_RESPONSE_CODES::AS108M_NO_RESPONSE;
 	
 	// clear any leftover data that may be in _comm 
-	// since AS108M will send 0x55 after powered up
+	// since AS108M will send 0x55 after power up
 	while(_comm->available() > 0)
 		_comm->read();
 	

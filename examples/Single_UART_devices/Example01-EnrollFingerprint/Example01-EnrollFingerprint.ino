@@ -45,18 +45,16 @@ void setup()
   // Initialize reader serial port
   as108_serial.begin(57600);
 
-  // When creating the main AS108M object we pass the callback function as a parameter.
-  // The library will call this function if there are any errors during operation.
-  // This parameter is optional.
-  as108m.begin(as108_serial, AS108_Callback);
-
+  // Set built-in LED pin as output
   pinMode(LED_BUILTIN, OUTPUT);
-
+  
   // the fingerprint scanner needs 100 ms after power up so let's wait and give it some slack also
   delay(150);
 
-  // Check if AS108M is properly connected
-  if (as108m.isConnected())
+  // When calling begin we pass reader serial port and an optional callback function as a parameter.
+  // The library will call this function if there are any errors during operation.
+  // The callback parameter is optional.
+  if (as108m.begin(as108_serial, AS108_Callback) == true)
   {
     Serial.println(F("AS108M is properly connected"));
     digitalWrite(LED_BUILTIN, HIGH);
@@ -64,7 +62,7 @@ void setup()
   else
   {
     Serial.println(F("AS108M not properly connected - check your connections..."));
-    Serial.println(F("System halted !"));
+    Serial.println(F("System halted!"));
     while (true);
   }
 }

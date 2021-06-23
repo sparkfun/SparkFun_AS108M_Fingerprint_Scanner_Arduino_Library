@@ -5,7 +5,7 @@ SparkFun Serial Fingerprint Scanner AS-108M
 
 [*Capacitive Fingerprint Scanner - AS-108M (SEN-17151)*](https://www.sparkfun.com/products/17151)
 
-The AS-108M sets itself apart from other finger print scanners with the ability to read a fingerprint's image by pixel array and delivering ridge or valley signals to the A/D converter and digital processor, then to the serial peripheral interface for data-reading. The on-board MCU uses a fingerprint algorithm allowing you, through UART, to use MCU SOC commands to operate module like fingerprint enroll, match operations, and more.
+The AS-108M sets itself apart from other fingerprint scanners with the ability to read a fingerprint's image by pixel array and delivering ridge or valley signals to the A/D converter and digital processor, then to the serial peripheral interface for data reading. The on-board MCU uses a fingerprint algorithm allowing you, through UART, to enroll, search and match fingerprints. 
 
 The AS-108M features an image resolution of 508dpi, a recognition time of less than 0.6 seconds, and can store up to 100 high quality templates. Unlike other fingerprint scanners, this version includes an an interface cable with a 6-pin male hook-up output that attaches to the connection port for easy set-up and assembly.
 

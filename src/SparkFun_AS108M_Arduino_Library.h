@@ -71,7 +71,7 @@ public:
 	void sendPacket(const byte* data, byte dataSize);
 	
 	// Starts the device. Callback is an optional pointer to a function that returns void and accepts void. Address is optional and defaults to 0xffffffff.
-	void begin(Stream& commPort = Serial, void(*callBack)(void) = NULL, unsigned long address = 0xffffffff);
+	bool begin(Stream& commPort = Serial, void(*callBack)(void) = NULL, unsigned long address = 0xffffffff);
 	
 	// Returns true if AS108M replies accordingly using the settings from begin.
 	bool isConnected();

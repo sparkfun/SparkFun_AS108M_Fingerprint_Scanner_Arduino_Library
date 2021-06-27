@@ -58,6 +58,11 @@ const byte AS108M_VALID_TEMPLATE_NUM =	0x1d;
 const byte AS108M_READ_INDEX_TABLE =	0x1f;
 const byte AS108M_CANCEL =				0x30;
 
+// Registers
+const byte AS108M_BAUDRATE_CTRL_REG = 	0x04;
+const byte AS108M_MATCH_THRES_REG = 	0x05;
+const byte AS108M_PACKET_SIZE_REG = 	0x06;
+
 // Enumerations
 enum class PACKET_FIELD : byte
 {
@@ -77,6 +82,15 @@ enum class FLAG_TYPE : byte
 	DATA,
 	ACK,
 	END,
+};
+
+enum class AS108M_BAUDRATE : byte
+{
+	AS108M_9600 = 1,
+	AS108M_19200 = 2,
+	AS108M_38400 = 4,
+	AS108M_57600 = 6,
+	AS108M_115200 = 12,
 };
 
 enum class AS108M_RESPONSE_CODES : byte
@@ -131,5 +145,4 @@ enum class AS108M_RESPONSE_CODES : byte
 	AS108M_NO_RESPONSE,									// 47, no response
 	AS108M_UNKNOWN_ERROR								// 48, unknown error
 };
-	
 #endif

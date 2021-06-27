@@ -1,5 +1,5 @@
 /*
-  Enroll a fingerprint into AS-108M/AD-013 memory
+  Search for any matching fingerprint in AS-108M/AD-013 memory
   By: Ricardo Ramos
   SparkFun Electronics
   Date: June 14th, 2021
@@ -7,7 +7,7 @@
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/17151
 
-  This example shows how to enroll and save a fingeprint into a specific memory location into the AS-108M/AD-013 flash memory.
+  This example shows how to set the AS-108M/AD-013 match threshold value.
   
   Note: This example will only work in devices with more than one hardware serial port like ESP32, STM32, Mega, etc.
   
@@ -67,34 +67,41 @@ void setup()
 
 void loop()
 {
-  // ID holds the memory address that the fingerprint will be saved to.
-  // Valid ranges are 1 to 40, inclusive
-  byte ID = 1;
+  // Change match threshold to 2
+  uint8_t newMatchThreshold = 2;
 
-  Serial.print(F("Enrolling fingerprint in memory location "));
-  Serial.println(ID);
+  // Send command to reader
+  bool success = as108m.setMatchThreshold(newMatchThreshold);
 
-  // Begin enroll process
-  bool enroll = as108m.enrollFingerprint(ID);
-
-  if (enroll == true)
+  if(success == true)
   {
-    // Turn on the built in LED and print out a sucess message if the operation was successful...
-    Serial.print("Fingerprint enrolled successfully in memory position ");
-    Serial.print(ID);
-    Serial.println(" !");
-    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.print(F("Reader match threshold programmed to "));
+    Serial.print(newMatchThreshold);
+    Serial.println(F("."));
+
+    // Get updated match threshold size from sensor
+    uint8_t updatedMatchThreshold = as108m.getMatchThreshold();
+
+    // Send match threshold to serial port if operation was successful
+    if (as108m.response == AS108M_RESPONSE_CODES::AS108M_OK)
+    {
+      Serial.print(F("Match threshold readback is "));
+      Serial.print(updatedMatchThreshold);
+      Serial.println(F("."));
+    }
+    else
+    {
+      Serial.println(F("Error while reading match threshold."));
+    }
   }
   else
   {
-    // ... or otherwise turn the LED off and print out a failure message
-    Serial.println("Enroll failed...");
-    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println(F("Error while setting match threshold."));
   }
 
-  // Halt
-  while (true);     
- 
+  // Wait forever
+  Serial.println(F("System halted!"));
+  while(true);
 }
 
 // This function prints out the corresponding error message

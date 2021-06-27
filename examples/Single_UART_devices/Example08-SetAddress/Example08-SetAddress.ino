@@ -1,5 +1,5 @@
 /*
-  Enroll a fingerprint into AS-108M/AD-013 memory
+  Search for any matching fingerprint in AS-108M/AD-013 memory
   By: Ricardo Ramos
   SparkFun Electronics
   Date: June 14th, 2021
@@ -7,28 +7,32 @@
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/17151
 
-  This example shows how to enroll and save a fingeprint into a specific memory location into the AS-108M/AD-013 flash memory.
+  This example shows how to set the AS-108M/AD-013 address.
   
-  Note: This example will only work in devices with more than one hardware serial port like ESP32, STM32, Mega, etc.
+  Note: This example will work in devices with a single hardware serial port like Arduino Uno.
   
   Hardware Connections:
   - Connect the sensor to your board. Be aware that this sensor can be powered by 3.3V only!
   - Open a serial monitor at 115200bps
   
-  The example below illustrates how to use the AS-108M/AD-013 with an ESP32 ThingPlus board.
+  The example below illustrates how to use the AS-108M/AD-013 with an Arduino Uno board.
 */
 
+#include <SoftwareSerial.h>
 #include "SparkFun_AS108M_Arduino_Library.h"
 
 // Defines where the readers will be connected.
 // TX_PIN : Arduino --> Reader
 // RX_PIN : Arduino <-- Reader
 
-#define RX_PIN    25        // AD-013 blue wire
-#define TX_PIN    26        // AD-013 green wire
+#define TX_PIN    9       // AD-013 green wire
+#define RX_PIN    8       // AD-013 blue wire
 
 // Reader instance
 AS108M as108m;
+
+// Software serial instance with the corresponding pins
+SoftwareSerial as108_serial(RX_PIN, TX_PIN);
 
 // Function prototype for error callback function
 void AS108_Callback();
@@ -41,7 +45,7 @@ void setup()
   Serial.println(F("Starting up..."));
 
   // Initialize reader serial port
-  Serial1.begin(57600, SERIAL_8N2, RX_PIN, TX_PIN);
+  as108_serial.begin(57600);
 
   // Set built-in LED pin as output
   pinMode(LED_BUILTIN, OUTPUT);
@@ -49,10 +53,10 @@ void setup()
   // the fingerprint scanner needs 100 ms after power up so let's wait and give it some slack also
   delay(150);
 
-  // When calling begin we pass the reader serial port, the reader's address and an optional callback function as a parameter.
+  // When calling begin we pass reader serial port, the reader address (which defaults to 0xffffffff) and an optional callback functions.
   // The library will call this function if there are any errors during operation.
   // The callback parameter is optional.
-  if (as108m.begin(Serial1, 0xffffffff, AS108_Callback) == true)
+  if (as108m.begin(as108_serial, 0xffffffff, AS108_Callback) == true)
   {
     Serial.println(F("AS108M is properly connected."));
     digitalWrite(LED_BUILTIN, HIGH);
@@ -67,34 +71,30 @@ void setup()
 
 void loop()
 {
-  // ID holds the memory address that the fingerprint will be saved to.
-  // Valid ranges are 1 to 40, inclusive
-  byte ID = 1;
+  // Change address to 0x12345678
+  uint32_t newAddress = 0x12345678;
 
-  Serial.print(F("Enrolling fingerprint in memory location "));
-  Serial.println(ID);
+  Serial.print(F("Reader address will be changed to 0x"));
+  Serial.print(newAddress, HEX);
+  Serial.println(F("."));
 
-  // Begin enroll process
-  bool enroll = as108m.enrollFingerprint(ID);
+  // Send command to reader
+  bool success = as108m.setAddress(newAddress);
 
-  if (enroll == true)
+  if(success == true)
   {
-    // Turn on the built in LED and print out a sucess message if the operation was successful...
-    Serial.print("Fingerprint enrolled successfully in memory position ");
-    Serial.print(ID);
-    Serial.println(" !");
-    digitalWrite(LED_BUILTIN, HIGH);
+      Serial.print(F("Address changed to 0x"));
+      Serial.print(newAddress, HEX);
+      Serial.println(F("."));
   }
   else
   {
-    // ... or otherwise turn the LED off and print out a failure message
-    Serial.println("Enroll failed...");
-    digitalWrite(LED_BUILTIN, LOW);
+      Serial.println(F("Error while changing address."));
   }
 
-  // Halt
-  while (true);     
- 
+  // Wait forever
+  Serial.println(F("System halted!"));
+  while(true);
 }
 
 // This function prints out the corresponding error message

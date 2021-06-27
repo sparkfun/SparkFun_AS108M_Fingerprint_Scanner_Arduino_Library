@@ -1,5 +1,5 @@
 /*
-  Enroll a fingerprint into AS-108M/AD-013 memory
+  Search for any matching fingerprint in AS-108M/AD-013 memory
   By: Ricardo Ramos
   SparkFun Electronics
   Date: June 14th, 2021
@@ -7,7 +7,7 @@
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/17151
 
-  This example shows how to enroll and save a fingeprint into a specific memory location into the AS-108M/AD-013 flash memory.
+  This example shows how to set the AS-108M/AD-013 address.
   
   Note: This example will only work in devices with more than one hardware serial port like ESP32, STM32, Mega, etc.
   
@@ -67,34 +67,30 @@ void setup()
 
 void loop()
 {
-  // ID holds the memory address that the fingerprint will be saved to.
-  // Valid ranges are 1 to 40, inclusive
-  byte ID = 1;
+  // Change address to 0x12345678
+  uint32_t newAddress = 0x12345678;
 
-  Serial.print(F("Enrolling fingerprint in memory location "));
-  Serial.println(ID);
+  Serial.print(F("Reader address will be changed to 0x"));
+  Serial.print(newAddress, HEX);
+  Serial.println(F("."));
 
-  // Begin enroll process
-  bool enroll = as108m.enrollFingerprint(ID);
+  // Send command to reader
+  bool success = as108m.setAddress(newAddress);
 
-  if (enroll == true)
+  if(success == true)
   {
-    // Turn on the built in LED and print out a sucess message if the operation was successful...
-    Serial.print("Fingerprint enrolled successfully in memory position ");
-    Serial.print(ID);
-    Serial.println(" !");
-    digitalWrite(LED_BUILTIN, HIGH);
+      Serial.print(F("Address changed to 0x"));
+      Serial.print(newAddress, HEX);
+      Serial.println(F("."));
   }
   else
   {
-    // ... or otherwise turn the LED off and print out a failure message
-    Serial.println("Enroll failed...");
-    digitalWrite(LED_BUILTIN, LOW);
+      Serial.println(F("Error while changing address."));
   }
 
-  // Halt
-  while (true);     
- 
+  // Wait forever
+  Serial.println(F("System halted!"));
+  while(true);
 }
 
 // This function prints out the corresponding error message

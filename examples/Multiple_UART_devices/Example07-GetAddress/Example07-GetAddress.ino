@@ -1,5 +1,5 @@
 /*
-  Enroll a fingerprint into AS-108M/AD-013 memory
+  Search for any matching fingerprint in AS-108M/AD-013 memory
   By: Ricardo Ramos
   SparkFun Electronics
   Date: June 14th, 2021
@@ -7,7 +7,7 @@
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/17151
 
-  This example shows how to enroll and save a fingeprint into a specific memory location into the AS-108M/AD-013 flash memory.
+  This example shows how to get the AS-108M/AD-013 address.
   
   Note: This example will only work in devices with more than one hardware serial port like ESP32, STM32, Mega, etc.
   
@@ -49,52 +49,24 @@ void setup()
   // the fingerprint scanner needs 100 ms after power up so let's wait and give it some slack also
   delay(150);
 
-  // When calling begin we pass the reader serial port, the reader's address and an optional callback function as a parameter.
-  // The library will call this function if there are any errors during operation.
-  // The callback parameter is optional.
-  if (as108m.begin(Serial1, 0xffffffff, AS108_Callback) == true)
-  {
-    Serial.println(F("AS108M is properly connected."));
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
-  else
-  {
-    Serial.println(F("AS108M not properly connected - check your connections..."));
-    Serial.println(F("System halted!"));
-    while (true);
-  }
+  // Since we need a reply header regardless if the address is correct or not let's simply
+  // begin as108m without caring about the returned value
+  as108m.begin(Serial1, 0xffffffff, AS108_Callback);
 }
 
 void loop()
 {
-  // ID holds the memory address that the fingerprint will be saved to.
-  // Valid ranges are 1 to 40, inclusive
-  byte ID = 1;
+ // Get address from sensor
+  uint32_t address = as108m.getAddress();
 
-  Serial.print(F("Enrolling fingerprint in memory location "));
-  Serial.println(ID);
+  // Send address to serial port
+  Serial.print(F("Reader address is 0x"));
+  Serial.print(address, HEX);
+  Serial.println(F("."));
 
-  // Begin enroll process
-  bool enroll = as108m.enrollFingerprint(ID);
-
-  if (enroll == true)
-  {
-    // Turn on the built in LED and print out a sucess message if the operation was successful...
-    Serial.print("Fingerprint enrolled successfully in memory position ");
-    Serial.print(ID);
-    Serial.println(" !");
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
-  else
-  {
-    // ... or otherwise turn the LED off and print out a failure message
-    Serial.println("Enroll failed...");
-    digitalWrite(LED_BUILTIN, LOW);
-  }
-
-  // Halt
-  while (true);     
- 
+  // Wait forever
+  Serial.println(F("System halted!"));
+  while(true);
 }
 
 // This function prints out the corresponding error message

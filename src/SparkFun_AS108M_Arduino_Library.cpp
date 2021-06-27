@@ -21,7 +21,7 @@ https://www.sparkfun.com/products/17151
 
 #define SERIAL_BUFFER_SIZE 256
 
-bool AS108M::begin(Stream& commPort, void(*callBack)(void), unsigned long address)
+bool AS108M::begin(Stream& commPort, uint32_t address, void(*callBack)(void))
 {
 	_comm = &commPort;
 	_address = static_cast<uint32_t>(address);
@@ -119,7 +119,7 @@ AS108M_PACKET_DATA AS108M::readPacket(unsigned int timeout)
 		} 
 	}
 	
-	// Wait until all bytes arrive
+	// Wait until completed packets arrive - needed for slow operation...
 	delay(50);
 	
 	// Read the whole buffer into buffer array
@@ -137,7 +137,8 @@ AS108M_PACKET_DATA AS108M::readPacket(unsigned int timeout)
 	}
 		
 	// Check if address matches the one programmed
-	uint32_t receivedAddress = buffer[2] << 24 | buffer[3] << 16 | buffer[4] << 8 | buffer[5];
+	uint32_t receivedAddress = static_cast<uint32_t>(buffer[2]) << 24 | static_cast<uint32_t>(buffer[3]) << 16 | static_cast<uint32_t>(buffer[4]) << 8 | static_cast<uint32_t>(buffer[5]);
+	_addressReplied = receivedAddress;
 	if (receivedAddress != _address)
 	{
 		response = AS108M_RESPONSE_CODES::AS108M_ADDRESS_MISMATCH;
@@ -1319,3 +1320,308 @@ bool AS108M::deleteFingerprintEntry(byte ID)
 	return true;
 }
 
+uint16_t AS108M::getDatabaseSize()
+{
+	byte readParaCommand[4] = {AS108M_FLAG_COMMAND, 0x00, 0x03, AS108M_READ_SYS_PARAMETER};
+	sendPacket(readParaCommand,4);
+
+	// Set response as no response again
+	response = AS108M_RESPONSE_CODES::AS108M_NO_RESPONSE;
+	
+	// Create default reply struct
+	AS108M_PACKET_DATA reply;
+	
+	// Get the reply from the device
+	reply = readPacket();
+
+	if(reply.packetData[0] == 0x01)
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_DATA_PACKET_RECEIVE_ERROR;
+		// Callback the function passed if it's not NULL
+		if (pCallback != NULL)
+			pCallback();
+
+		return 0;
+	}
+
+	// Database size is located in bytes 5 and 6 in reply.packetData array
+	return ((reply.packetData[5] << 8) | reply.packetData[6]);
+}
+
+uint32_t AS108M::getAddress()
+{
+	byte readParaCommand[4] = {AS108M_FLAG_COMMAND, 0x00, 0x03, AS108M_READ_SYS_PARAMETER};
+	sendPacket(readParaCommand, 4);
+
+	// Set response as no response again
+	response = AS108M_RESPONSE_CODES::AS108M_NO_RESPONSE;
+
+	// Create default reply struct
+	AS108M_PACKET_DATA reply;
+
+	// Get the reply from the device
+	reply = readPacket();
+
+	if (reply.packetData[0] == 0x01)
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_DATA_PACKET_RECEIVE_ERROR;
+		// Callback the function passed if it's not NULL
+		if (pCallback != NULL)
+			pCallback();
+
+		return 0;
+	}
+
+	// Address is located in bytes 9, 10, 11 and 12 in  reply.packetData array
+	// return ((reply.packetData[9] << 24) | (reply.packetData[10] << 16) | (reply.packetData[11] << 8) | reply.packetData[12]);
+
+	// Instead of retuning the reader's address from the reader's register get it from the reply header - which was already saved by readPacket function
+	// This allows easy recovery of the reader's address in case it's forgotten
+	return _addressReplied;
+}
+
+uint32_t AS108M::getBaudrate()
+{
+	byte readParaCommand[4] = {AS108M_FLAG_COMMAND, 0x00, 0x03, AS108M_READ_SYS_PARAMETER};
+	sendPacket(readParaCommand, 4);
+
+	// Set response as no response again
+	response = AS108M_RESPONSE_CODES::AS108M_NO_RESPONSE;
+
+	// Create default reply struct
+	AS108M_PACKET_DATA reply;
+
+	// Get the reply from the device
+	reply = readPacket();
+
+	if (reply.packetData[0] == 0x01)
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_DATA_PACKET_RECEIVE_ERROR;
+		// Callback the function passed if it's not NULL
+		if (pCallback != NULL)
+			pCallback();
+
+		return 0;
+	}
+
+	// Baudrate is located in bytes 15 and 16 in the reply.packetData array
+	// but since the maximum value for the multiplier is 12 (115200/9600) we
+	// only need to parse the least significant byte of the baudrate information
+	uint8_t multiplier = reply.packetData[16];
+	return multiplier * 9600U;
+}
+
+uint8_t AS108M::getMatchThreshold()
+{
+	byte readParaCommand[4] = {AS108M_FLAG_COMMAND, 0x00, 0x03, AS108M_READ_SYS_PARAMETER};
+	sendPacket(readParaCommand, 4);
+
+	// Set response as no response again
+	response = AS108M_RESPONSE_CODES::AS108M_NO_RESPONSE;
+
+	// Create default reply struct
+	AS108M_PACKET_DATA reply;
+
+	// Get the reply from the device
+	reply = readPacket();
+
+	if (reply.packetData[0] == 0x01)
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_DATA_PACKET_RECEIVE_ERROR;
+		// Callback the function passed if it's not NULL
+		if (pCallback != NULL)
+			pCallback();
+
+		return 0;
+	}
+
+	// Match threshold (or security rank) is located in bytes 7 and 8 in the reply.packetData array
+	// but since the maximum value for the match threshold is 5 we only need to parse the least
+	// significant byte of the match threshold information
+	return reply.packetData[8];
+}
+
+bool AS108M::setMatchThreshold(uint8_t newMatchThreshold)
+{
+	// Match threshold is in register #5
+	byte setCommand[6] = { AS108M_FLAG_COMMAND, 0x00, 0x05, AS108M_WRITE_REG, AS108M_MATCH_THRES_REG, newMatchThreshold };
+	sendPacket(setCommand, 6);
+
+	// Set response as no response again
+	response = AS108M_RESPONSE_CODES::AS108M_NO_RESPONSE;
+
+	// Create default reply struct
+	AS108M_PACKET_DATA reply;
+
+	// Get the reply from the device
+	reply = readPacket();
+
+	switch(reply.packetData[0])
+	{
+	case 0x0:
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_OK;
+		return true;
+	}
+	break;
+
+	case 0x01:
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_DATA_PACKET_RECEIVE_ERROR;
+		// Callback the function passed if it's not NULL
+		if (pCallback != NULL)
+			pCallback();
+
+		return false;
+	}
+	break;
+
+	case 0x1a:
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_INVALID_REGISTER;
+		if (pCallback != NULL)
+			pCallback();
+
+		return false;
+	}
+	break;
+
+	default:
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_UNKNOWN_ERROR;
+
+		// Callback the function passed if it's not NULL
+		if (pCallback != NULL)
+			pCallback();
+
+		return false;
+	}
+	break;
+
+	}
+
+	return false;
+}
+
+bool AS108M::setBaudrate(AS108M_BAUDRATE newBaudrate)
+{
+	// Get multiplier from enum value
+	uint8_t multiplier = static_cast<uint8_t>(newBaudrate);
+
+	// Baudrate register is #4
+	byte setCommand[6] = {AS108M_FLAG_COMMAND, 0x00, 0x05, AS108M_WRITE_REG, AS108M_BAUDRATE_CTRL_REG, multiplier};
+	sendPacket(setCommand, 6);
+
+	// Set response as no response again
+	response = AS108M_RESPONSE_CODES::AS108M_NO_RESPONSE;
+
+	// Create default reply struct
+	AS108M_PACKET_DATA reply;
+
+	// Get the reply from the device
+	reply = readPacket();
+
+	switch (reply.packetData[0])
+	{
+	case 0x0:
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_OK;
+		return true;
+	}
+	break;
+
+	case 0x01:
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_DATA_PACKET_RECEIVE_ERROR;
+		// Callback the function passed if it's not NULL
+		if (pCallback != NULL)
+			pCallback();
+
+		return false;
+	}
+	break;
+
+	case 0x1a:
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_INVALID_REGISTER;
+		if (pCallback != NULL)
+			pCallback();
+
+		return false;
+	}
+	break;
+
+	default:
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_UNKNOWN_ERROR;
+
+		// Callback the function passed if it's not NULL
+		if (pCallback != NULL)
+			pCallback();
+
+		return false;
+	}
+	break;
+	}
+
+	return false;
+}
+
+bool AS108M::setAddress(uint32_t newAddress)
+{
+	// Break the 32-bit address into 8 bit chunks
+	uint8_t b0 = newAddress >> 24;
+	uint8_t b1 = newAddress >> 16;
+	uint8_t b2 = newAddress >> 8;
+	uint8_t b3 = newAddress & 0x0000ff;
+
+	// Build the command 
+	byte setCommand[8] = {AS108M_FLAG_COMMAND, 0x00, 0x07, AS108M_SET_CHIP_ADDRESS, b0, b1, b2, b3};
+	
+	// Send the packet
+	sendPacket(setCommand, 8);
+
+	// Set response as no response again
+	response = AS108M_RESPONSE_CODES::AS108M_NO_RESPONSE;
+
+	// Create default reply struct
+	AS108M_PACKET_DATA reply;
+
+	// Get the reply from the device
+	reply = readPacket();
+
+	switch (reply.packetData[0])
+	{
+	case 0x0:
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_OK;
+		return true;
+	}
+	break;
+
+	case 0x01:
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_DATA_PACKET_RECEIVE_ERROR;
+		// Callback the function passed if it's not NULL
+		if (pCallback != NULL)
+			pCallback();
+
+		return false;
+	}
+	break;
+
+	default:
+	{
+		response = AS108M_RESPONSE_CODES::AS108M_UNKNOWN_ERROR;
+
+		// Callback the function passed if it's not NULL
+		if (pCallback != NULL)
+			pCallback();
+
+		return false;
+	}
+	break;
+	}
+
+	return false;
+}

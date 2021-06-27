@@ -12,7 +12,7 @@
  Note: This example will work in devices with a single hardware serial port like Arduino Uno.
   
   Hardware Connections:
-  - Connect the sensor to your board. Be aware that this sensor can be powered by 3.3V only !
+  - Connect the sensor to your board. Be aware that this sensor can be powered by 3.3V only!
   - Open a serial monitor at 115200bps
   
   The example below illustrates how to use the AS-108M/AD-013 with an Arduino Uno board.
@@ -53,12 +53,12 @@ void setup()
   // the fingerprint scanner needs 100 ms after power up so let's wait and give it some slack also
   delay(150);
 
-  // When calling begin we pass reader serial port and an optional callback function as a parameter.
+  // When calling begin we pass the reader serial port, the reader's address and an optional callback function as a parameter.
   // The library will call this function if there are any errors during operation.
   // The callback parameter is optional.
-  if (as108m.begin(as108_serial, AS108_Callback) == true)
+  if (as108m.begin(as108_serial, 0xffffffff, AS108_Callback) == true)
   {
-    Serial.println(F("AS108M is properly connected"));
+    Serial.println(F("AS108M is properly connected."));
     digitalWrite(LED_BUILTIN, HIGH);
   }
   else

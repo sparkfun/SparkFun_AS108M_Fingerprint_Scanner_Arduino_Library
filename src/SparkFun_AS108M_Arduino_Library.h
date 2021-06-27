@@ -49,6 +49,10 @@ private:
 	// AS108M address (defaults to 0xffffffff).
 	uint32_t _address = 0xffffffff;
 	
+	// This variable holds the received address from the reader
+	// which is useful when trying to blindly getting the reader's address:
+	uint32_t _addressReplied = 0;
+
 	// Returns enumeration based on response value.
 	AS108M_RESPONSE_CODES getResponseCode(byte response);
 
@@ -70,8 +74,9 @@ public:
 	// Sends multiple bytes to AS108M where data array holds all user payload, from packet flag up to but excluding sum.
 	void sendPacket(const byte* data, byte dataSize);
 	
-	// Starts the device. Callback is an optional pointer to a function that returns void and accepts void. Address is optional and defaults to 0xffffffff.
-	bool begin(Stream& commPort = Serial, void(*callBack)(void) = NULL, unsigned long address = 0xffffffff);
+	// Starts the device in the serial port with address provided.
+	// Callback is an optional pointer to a function that returns void and accepts void.
+	bool begin(Stream& commPort, uint32_t address = 0xffffffff, void(*callBack)(void) = NULL);
 	
 	// Returns true if AS108M replies accordingly using the settings from begin.
 	bool isConnected();
@@ -89,7 +94,28 @@ public:
 	// This function will wait three attempts spaced timeBetweenRetries msec if no finger is in sensor before returning.
 	AS108M_QUERY_DATA searchFingerprint();
 	
-	//Deletes a specific fingerprint entry from the database.
+	// Deletes a specific fingerprint entry from the database.
 	bool deleteFingerprintEntry(byte ID);
+
+	// Get database size
+	uint16_t getDatabaseSize();
+
+	// Get the reader's address
+	uint32_t getAddress();
+
+	// Get current baudrate
+	uint32_t getBaudrate();
+
+	// Get match threshold value
+	uint8_t getMatchThreshold();
+
+	// Set match threshold value
+	bool setMatchThreshold(uint8_t newMatchThreshold);
+
+	// Set baudrate
+	bool setBaudrate(AS108M_BAUDRATE newBaudrate);
+
+	// Changes the reader's address
+	bool setAddress(uint32_t newAddress);
 };
 #endif
